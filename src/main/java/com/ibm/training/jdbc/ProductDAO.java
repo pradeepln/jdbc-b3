@@ -1,5 +1,8 @@
 package com.ibm.training.jdbc;
 import java.sql.*;
+import java.util.*;
+
+
 
 public class ProductDAO {
 	
@@ -8,9 +11,17 @@ public class ProductDAO {
 		try {
 			//insert into product(product_name,product_price,product_qoh) values('nameval',2323,10)
 			Connection c = ConnectionUtil.getConnection();
-			Statement stmt = c.createStatement();
-			String sql = "insert into product(product_name,product_price,product_qoh) values('"+p.getName()+"',"+p.getPrice()+","+p.getQoh()+")";
-			stmt.executeUpdate(sql);
+//			Statement stmt = c.createStatement();
+//			String sql = "insert into product(product_name,product_price,product_qoh) values('"+p.getName()+"',"+p.getPrice()+","+p.getQoh()+")";
+			
+			String sql = "insert into product(product_name,product_price,product_qoh) values(?,?,?)";
+			PreparedStatement pStmt = c.prepareStatement(sql);
+			pStmt.setString(1, p.getName());
+			pStmt.setFloat(2, p.getPrice());
+			pStmt.setInt(3, p.getQoh());
+			
+			pStmt.executeUpdate();
+			//stmt.executeUpdate(sql);
 		}catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -35,5 +46,35 @@ public class ProductDAO {
 		}
 		return p;
 	}
+	
+	public List<Product> findAll(){
+		List<Product> all = new ArrayList<>();
+		try {
+			Connection c = ConnectionUtil.getConnection();
+			Statement stmt = c.createStatement();
+			String sql = "select * from product";
+			ResultSet rs = stmt.executeQuery(sql);
+			
+			while(rs.next()) {
+				Product p = new Product();
+				p.id = rs.getInt(1);
+				p.name = rs.getString(2);
+				p.price = rs.getFloat(3);
+				p.qoh = rs.getInt(4);
+				all.add(p);
+			}
+			
+		}catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return all;
+	}
 
+	public void deleteById(int id) {
+		//TBD
+	}
+	public void updateRow(Product fromObj) {
+		//TBD
+	}
+	
 }
